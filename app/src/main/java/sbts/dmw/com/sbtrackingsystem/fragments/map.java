@@ -35,6 +35,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -150,7 +152,10 @@ public class map extends Fragment implements OnMapReadyCallback {
                             str = Pattern.compile(",").split(response);
                             gMap.clear();
                             att = new MarkerOptions().position(new LatLng(Double.valueOf(str[1]), Double.valueOf(str[2]))).title("Bus");
+
+                           att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bumarker));
                             marker = gMap.addMarker(att);
+
                             if (once) {
                                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[1]), Double.valueOf(str[2])), 17));
                                 once = false;
