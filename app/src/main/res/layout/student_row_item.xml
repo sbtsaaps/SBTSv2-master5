@@ -3,14 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="150dp"
-    android:layout_marginTop="5dp"
-    android:id="@+id/container">
+    android:layout_marginTop="2dp"
+    android:background="@drawable/student_list_background"
+    android:id="@+id/container"
+    android:layout_margin="3dp">
 
     <ImageView
         android:id="@+id/thumbnail"
         android:layout_width="100dp"
         android:layout_height="match_parent"
         android:background="@drawable/loading_shape"
+        android:layout_margin="4dp"
         tools:ignore="ContentDescription" />
 
     <LinearLayout
