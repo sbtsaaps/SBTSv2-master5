@@ -2,13 +2,20 @@ package sbts.dmw.com.sbtrackingsystem.activities;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,6 +23,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -23,7 +32,12 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,17 +55,31 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     Toolbar toolbar;
     NavigationView navigationView;
     LocationManager locationManager;
+    ImageView imageView;
+    View header_view;
     private String sEmail;
+    final int PICK_CODE = 1;
     Bundle bundle;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendee_navigation);
         navigationView = findViewById(R.id.attendeeNavigationView);
-        navigationView.setNavigationItemSelectedListener(this);
+        header_view = navigationView.getHeaderView(0);
 
+        imageView = (ImageView) header_view.findViewById(R.id.profile_menu);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gallery = new Intent();
+                gallery.setType("image/*");
+                gallery.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(gallery, "select image "), PICK_CODE);
+
+            }
+        });
+        navigationView.setNavigationItemSelectedListener(this);
         sessionManager = new SessionManager(this);
         bundle = new Bundle();
         HashMap<String, String> user = sessionManager.getUserDetails();
@@ -214,5 +242,20 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     public void onProviderDisabled(String provider) {
 
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+            Uri uri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                imageView.setImageBitmap(bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
