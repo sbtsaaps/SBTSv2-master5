@@ -45,10 +45,10 @@ import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
 public class LoginActivity extends AppCompatActivity {
 
     private int LOCATION_PERMISSION_CODE = 1;
-    private EditText email, password;
+    private EditText username, password;
     private ProgressBar loading;
     private Button login;
-    private String role, email_address;
+    private String role, user;
     SessionManager sessionManager;
 
     @Override
@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         sessionManager = new SessionManager(this);
-        email = findViewById(R.id.emailAddress);
+        username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         login = findViewById(R.id.loginButton);
         loading = findViewById(R.id.loading);
@@ -115,9 +115,9 @@ public class LoginActivity extends AppCompatActivity {
 
     public void checkLogin(View view) {
 
-        if (email.getText().toString().isEmpty() || password.getText().toString().isEmpty()) {
-            if (email.getText().toString().isEmpty()) {
-                email.setError("Please enter your email address");
+        if (username.getText().toString().isEmpty() || password.getText().toString().isEmpty()) {
+            if (username.getText().toString().isEmpty()) {
+                username.setError("Please enter your email address");
             }
             if (password.getText().toString().isEmpty()) {
                 password.setError("Please enter your password");
@@ -126,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
             loading.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
 
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, getText(R.string.login_url).toString(), new Response.Listener<String>() {
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://sbts2019.000webhostapp.com/login.php", new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
                     try {
@@ -138,8 +138,8 @@ public class LoginActivity extends AppCompatActivity {
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject object = jsonArray.getJSONObject(i);
                                 role = object.getString("Role").trim();
-                                email_address = object.getString("Email").trim();
-                                sessionManager.createSession(email_address, role);
+                                user = object.getString("Username").trim();
+                                sessionManager.createSession(user, role);
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 startActivity(intent);
                                 finish();
@@ -163,7 +163,7 @@ public class LoginActivity extends AppCompatActivity {
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
                     params.put("password", password.getText().toString());
-                    params.put("email", email.getText().toString());
+                    params.put("username", username.getText().toString());
                     return params;
                 }
             };

@@ -62,7 +62,7 @@ public class StudentList extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.all: {
-                String url = "https://defcon12.000webhostapp.com/Recycle.php";
+                String url = "https://sbts2019.000webhostapp.com/studentList.php";
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -72,7 +72,7 @@ public class StudentList extends Fragment {
                 return true;
             }
             case R.id.present: {
-                String url = "https://defcon12.000webhostapp.com/RecyclePresent.php";
+                String url = "https://sbts2019.000webhostapp.com/presentStudentlist.php";
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -82,7 +82,7 @@ public class StudentList extends Fragment {
                 return true;
             }
             case R.id.absent: {
-                String url = "https://defcon12.000webhostapp.com/RecycleAbsent.php";
+                String url = "https://sbts2019.000webhostapp.com/absentStudentlist.php";
                 bundle.putString("url", url);
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
@@ -116,9 +116,9 @@ public class StudentList extends Fragment {
                     try {
                         jsonObject = response.getJSONObject(i);
                         Student s = new Student();
-                        s.setName(jsonObject.getString("Name"));
+                        s.setName(jsonObject.getString("Full_Name"));
                         s.setDivision(jsonObject.getString("Division"));
-                        s.setRoll_no(jsonObject.getString("Rollno"));
+                        s.setRoll_no(jsonObject.getString("Roll_No"));
                         s.setS_class(jsonObject.getString("Class"));
                         s.setPhoto(jsonObject.getString("Photo"));
                         studentList.add(s);

@@ -90,7 +90,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     public void onClick(DialogInterface dialog, int which) {
 
 
-                        String url = "https://defcon12.000webhostapp.com/markPresent.php";
+                        String url = "https://sbts2019.000webhostapp.com/markPresent.php";
                         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                                 new Response.Listener<String>() {
                                     @Override

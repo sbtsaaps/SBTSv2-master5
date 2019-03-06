@@ -1,5 +1,7 @@
 package sbts.dmw.com.sbtrackingsystem.activities;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,9 +11,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import sbts.dmw.com.sbtrackingsystem.R;
 import sbts.dmw.com.sbtrackingsystem.classes.SessionManager;
+import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
 import sbts.dmw.com.sbtrackingsystem.fragments.ParentHome;
 import sbts.dmw.com.sbtrackingsystem.fragments.map;
 
@@ -21,15 +40,29 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
     SessionManager sessionManager;
     Toolbar toolbar;
     NavigationView navigationView;
+    ImageView imageView;
+    View header_view;
+    RequestOptions option;
+    String[] str;
+    StringRequest stringRequest;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+    String url;
+    TextView name, email;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent_navigation);
-
+        option = new RequestOptions().centerCrop().placeholder(R.drawable.loading_shape).error(R.drawable.loading_shape);
+        sharedPreferences = getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
         navigationView = findViewById(R.id.parentNavigationView);
         navigationView.setNavigationItemSelectedListener(this);
-
+        header_view = navigationView.getHeaderView(0);
+        imageView = header_view.findViewById(R.id.menu_photo);
+        name = header_view.findViewById(R.id.menu_name);
+        email = header_view.findViewById(R.id.menu_email);
         sessionManager = new SessionManager(this);
 
         toolbar = findViewById(R.id.parent_toolbar);
@@ -40,27 +73,28 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
         drawerLayout.addDrawerListener(toogle);
         toogle.syncState();
 
-        if(savedInstanceState == null){
-            getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame,new map()).commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new map()).commit();
             navigationView.setCheckedItem(R.id.nav_bus_location);
             toolbar.setTitle("Map");
         }
+        getData();
     }
 
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        switch (menuItem.getItemId()){
-            case R.id.nav_logout_parent:{
+        switch (menuItem.getItemId()) {
+            case R.id.nav_logout_parent: {
                 sessionManager.logout();
                 break;
             }
-            case R.id.nav_bus_location:{
-                getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame,new map()).commit();
+            case R.id.nav_bus_location: {
+                getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new map()).commit();
                 toolbar.setTitle("Map");
                 break;
             }
-            case R.id.nav_parent_profile:{
+            case R.id.nav_parent_profile: {
                 getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new ParentHome()).commit();
                 toolbar.setTitle("Profile");
                 break;
@@ -72,10 +106,52 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
 
     @Override
     public void onBackPressed() {
-        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        }else{
+        } else {
             super.onBackPressed();
         }
+    }
+
+    private void getData() {
+
+        url = "https://sbts2019.000webhostapp.com/parent.php";
+        stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        editor = sharedPreferences.edit();
+
+                        str = Pattern.compile(",").split(response);
+                        editor.putString("Full_Name", str[0]);
+                        editor.putString("Photo", str[1]);
+                        editor.putString("Email", str[2]);
+                        editor.putString("Mobile_No1", str[3]);
+                        editor.putString("Bus_No", str[4]);
+                        editor.putString("DOB", str[5]);
+                        editor.putString("Student_Name", str[6]);
+                        editor.putString("Address", str[7]);
+                        editor.apply();
+                        Glide.with(getApplicationContext() ).load(sharedPreferences.getString("Photo", null)).apply(option).into(imageView);
+                        name.setText(sharedPreferences.getString("Full_Name", null));
+                        email.setText(sharedPreferences.getString("Email", null));
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("username", sharedPreferences.getString("USERNAME", "NULL"));
+                return params;
+            }
+        };
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
+
+
     }
 }

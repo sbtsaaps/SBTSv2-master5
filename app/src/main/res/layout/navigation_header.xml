@@ -10,24 +10,24 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
+        android:id="@+id/menu_photo"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:src="@drawable/profile"
-        android:id="@+id/profile_menu"
         tools:ignore="ContentDescription" />
 
     <TextView
+        android:id="@+id/menu_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingTop="8dp"
-        android:text="User_Name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         tools:ignore="HardcodedText" />
 
     <TextView
+        android:id="@+id/menu_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email"
         tools:ignore="HardcodedText" />
 
 </LinearLayout>

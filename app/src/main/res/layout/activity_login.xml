@@ -25,11 +25,11 @@
         android:textColorHint="@color/black">
 
         <EditText
-            android:id="@+id/emailAddress"
+            android:id="@+id/username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/enter_your_email_address"
-            android:inputType="textEmailAddress"
+            android:hint="Enter your Username"
+            android:inputType="text"
             android:textColor="@color/black" />
     </android.support.design.widget.TextInputLayout>
 

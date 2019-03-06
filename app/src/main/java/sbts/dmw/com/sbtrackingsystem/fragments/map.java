@@ -61,6 +61,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     GoogleMap gMap;
     MarkerOptions att;
     Boolean once = true;
+    String Bus_No;
 
     private Handler handler = new Handler();
     String[] str;
@@ -126,6 +127,7 @@ public class map extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Bus_No=sharedPreferences.getString("Bus_No",null);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -144,20 +146,20 @@ public class map extends Fragment implements OnMapReadyCallback {
         @Override
         public void run() {
 
-            String url = "https://defcon12.000webhostapp.com/Locationin.php";
+            String url = "https://sbts2019.000webhostapp.com/locationin.php";
             StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             str = Pattern.compile(",").split(response);
                             gMap.clear();
-                            att = new MarkerOptions().position(new LatLng(Double.valueOf(str[1]), Double.valueOf(str[2]))).title("Bus");
+                            att = new MarkerOptions().position(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1]))).title("Bus");
 
                            att.icon(BitmapDescriptorFactory.fromResource(R.drawable.bumarker));
                             marker = gMap.addMarker(att);
 
                             if (once) {
-                                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[1]), Double.valueOf(str[2])), 17));
+                                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(Double.valueOf(str[0]), Double.valueOf(str[1])), 17));
                                 once = false;
                             }
 
@@ -171,7 +173,7 @@ public class map extends Fragment implements OnMapReadyCallback {
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("email", "aniket.y@somaiya.edu");
+                    params.put("Bus_no",Bus_No );
                     return params;
                 }
             };
