@@ -206,7 +206,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             }
             case R.id.nav_profile: {
 
-                AttendeeHome attendeeHome = new AttendeeHome();
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.nav_frame, new AttendeeHome())
