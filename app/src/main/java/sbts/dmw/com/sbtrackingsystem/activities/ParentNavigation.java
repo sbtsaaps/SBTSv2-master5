@@ -1,8 +1,13 @@
 package sbts.dmw.com.sbtrackingsystem.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -10,6 +15,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,8 +28,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -32,6 +41,7 @@ import sbts.dmw.com.sbtrackingsystem.R;
 import sbts.dmw.com.sbtrackingsystem.classes.SessionManager;
 import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
 import sbts.dmw.com.sbtrackingsystem.fragments.ParentHome;
+import sbts.dmw.com.sbtrackingsystem.fragments.changepassword;
 import sbts.dmw.com.sbtrackingsystem.fragments.map;
 
 public class ParentNavigation extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -47,15 +57,22 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
     StringRequest stringRequest;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
-    String url;
+    Bitmap bitmap;
+    String url,User;
     TextView name, email;
+    final int PICK_CODE = 1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parent_navigation);
-        option = new RequestOptions().centerCrop().placeholder(R.drawable.loading_shape).error(R.drawable.loading_shape);
+        option = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true);
         sharedPreferences = getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
         navigationView = findViewById(R.id.parentNavigationView);
         navigationView.setNavigationItemSelectedListener(this);
@@ -63,7 +80,22 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
         imageView = header_view.findViewById(R.id.menu_photo);
         name = header_view.findViewById(R.id.menu_name);
         email = header_view.findViewById(R.id.menu_email);
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, PICK_CODE);
+
+            }
+        });
+
         sessionManager = new SessionManager(this);
+        HashMap<String, String> user = sessionManager.getUserDetails();
+        User = user.get(SessionManager.USERNAME);
 
         toolbar = findViewById(R.id.parent_toolbar);
         setSupportActionBar(toolbar);
@@ -90,13 +122,30 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
                 break;
             }
             case R.id.nav_bus_location: {
-                getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new map()).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.parent_nav_frame, new map())
+                        .addToBackStack(null)
+                        .commit();
                 toolbar.setTitle("Map");
                 break;
             }
             case R.id.nav_parent_profile: {
-                getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new ParentHome()).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.parent_nav_frame, new ParentHome())
+                        .addToBackStack(null)
+                        .commit();
                 toolbar.setTitle("Profile");
+                break;
+            }
+            case R.id.nav_change_pass: {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.parent_nav_frame, new changepassword())
+                        .addToBackStack(null)
+                        .commit();
+                toolbar.setTitle("Change Password");
                 break;
             }
         }
@@ -110,6 +159,12 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            this.finish();
+        } else {
+            getFragmentManager().popBackStack();
         }
     }
 
@@ -154,4 +209,69 @@ public class ParentNavigation extends AppCompatActivity implements NavigationVie
 
 
     }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK && data != null) {
+
+            Uri path = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), path);
+                upload();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private String imagetoString(Bitmap bitmap) {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    private void upload() {
+
+        String imageURL = "https://sbts2019.000webhostapp.com/uploadprofileparent.php";
+
+        StringRequest imagerequest = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
+                Glide.with(getApplicationContext())
+                        .load(sharedPreferences.getString("Photo",null))
+                        .apply(option)
+                        .into(imageView);
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(),error.toString(),Toast.LENGTH_LONG).show();
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new HashMap<>();
+                params.put("name", User);
+                params.put("image", imagetoString(bitmap));
+
+                return params;
+            }
+        };
+
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(imagerequest);
+    }
+
 }

@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (username.getText().toString().isEmpty() || password.getText().toString().isEmpty()) {
             if (username.getText().toString().isEmpty()) {
-                username.setError("Please enter your email address");
+                username.setError("Please enter your username ");
             }
             if (password.getText().toString().isEmpty()) {
                 password.setError("Please enter your password");
@@ -146,7 +146,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                     } catch (JSONException e) {
-                        Toast.makeText(getApplicationContext(), "Please enter a valid email address/password", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Please enter a valid username /password", Toast.LENGTH_SHORT).show();
                         loading.setVisibility(View.GONE);
                         login.setVisibility(View.VISIBLE);
                     }

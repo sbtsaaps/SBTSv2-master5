@@ -8,10 +8,12 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_studentsPresent"
-            android:icon="@drawable/ic_student_present"
-            android:title="Student's List"
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_account_circle_black_24dp"
+            android:title="Profile"
             tools:ignore="HardcodedText" />
+
+
 
         <item
             android:id="@+id/nav_map"
@@ -19,11 +21,22 @@
             android:title="Map"
             tools:ignore="HardcodedText" />
 
+
         <item
-            android:id="@+id/nav_profile"
-            android:icon="@drawable/ic_account_circle_black_24dp"
-            android:title="Profile"
+            android:id="@+id/nav_studentsPresent"
+            android:icon="@drawable/ic_student_present"
+            android:title="Student's List"
             tools:ignore="HardcodedText" />
+
+
+        <item
+            android:id="@+id/nav_change_pass"
+            android:icon="@drawable/change_pass"
+            android:title="Change Password"
+            tools:ignore="HardcodedText" />
+
+
+
 
     </group>
 

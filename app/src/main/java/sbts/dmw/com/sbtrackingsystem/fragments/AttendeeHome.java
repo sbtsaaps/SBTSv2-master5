@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
 import sbts.dmw.com.sbtrackingsystem.R;
@@ -30,7 +31,12 @@ public class AttendeeHome extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        option = new RequestOptions().centerCrop().placeholder(R.drawable.loading_shape).error(R.drawable.loading_shape);
+        option = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.loading_shape)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true);
 
 
 
@@ -65,7 +71,10 @@ public class AttendeeHome extends Fragment {
 
 
         name.setText(Full_Name);
-        Glide.with(getActivity().getApplicationContext()).load(Photo).apply(option).into(imageView);
+        Glide.with(getActivity().getApplicationContext())
+                .load(Photo)
+                .apply(option)
+                .into(imageView);
 
         email.setText(Email);
         mobile1.setText(Mobile_No1);

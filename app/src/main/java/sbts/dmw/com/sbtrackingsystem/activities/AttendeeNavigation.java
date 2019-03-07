@@ -1,6 +1,7 @@
 package sbts.dmw.com.sbtrackingsystem.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -23,9 +24,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +38,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +55,7 @@ import sbts.dmw.com.sbtrackingsystem.classes.SessionManager;
 import sbts.dmw.com.sbtrackingsystem.classes.SingletonClass;
 import sbts.dmw.com.sbtrackingsystem.fragments.AttendeeHome;
 import sbts.dmw.com.sbtrackingsystem.fragments.StudentList;
+import sbts.dmw.com.sbtrackingsystem.fragments.changepassword;
 import sbts.dmw.com.sbtrackingsystem.fragments.map;
 
 public class AttendeeNavigation extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
@@ -64,6 +70,7 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     RequestOptions option;
     TextView name, email;
     StringRequest stringRequest;
+    Bitmap bitmap;
     View header_view;
     private String User;
     final int PICK_CODE = 1;
@@ -74,18 +81,30 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendee_navigation);
-        option = new RequestOptions().centerCrop().placeholder(R.drawable.loading_shape).error(R.drawable.loading_shape);
         sharedPreferences = getSharedPreferences("LOGIN", Context.MODE_PRIVATE);
         navigationView = findViewById(R.id.attendeeNavigationView);
         header_view = navigationView.getHeaderView(0);
         imageView = header_view.findViewById(R.id.menu_photo);
         name = header_view.findViewById(R.id.menu_name);
         email = header_view.findViewById(R.id.menu_email);
+        option = new RequestOptions()
+                .centerCrop()
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true);
+
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(intent, PICK_CODE);
 
             }
         });
@@ -137,7 +156,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     @Override
     protected void onStart() {
         super.onStart();
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -190,6 +208,11 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
                 toolbar.setTitle("Map");
                 break;
             }
+            case R.id.nav_change_pass: {
+                getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new changepassword()).commit();
+                toolbar.setTitle("Change Password");
+                break;
+            }
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
@@ -202,6 +225,11 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+        }
+        if (getFragmentManager().getBackStackEntryCount() > 0) {
+            this.finish();
+        } else {
+            getFragmentManager().popBackStack();
         }
     }
 
@@ -251,7 +279,6 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
     }
 
 
-
     private void getData() {
 
         url = "https://sbts2019.000webhostapp.com/attendee.php";
@@ -294,4 +321,66 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK && data != null) {
+
+            Uri path = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), path);
+                upload();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private String imagetoString(Bitmap bitmap) {
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        byte[] bytes = byteArrayOutputStream.toByteArray();
+
+        return Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    private void upload() {
+
+        String imageURL = "https://sbts2019.000webhostapp.com/uploadprofile.php";
+
+        StringRequest imagerequest = new StringRequest(Request.Method.POST, imageURL, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                Toast.makeText(getApplicationContext(),response,Toast.LENGTH_LONG).show();
+                Glide.with(getApplicationContext())
+                        .load(sharedPreferences.getString("Photo",null))
+                        .apply(option)
+                        .into(imageView);
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(),error.toString(),Toast.LENGTH_LONG).show();
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new HashMap<>();
+                params.put("name", User);
+                params.put("image", imagetoString(bitmap));
+
+                return params;
+            }
+        };
+
+        SingletonClass.getInstance(getApplicationContext()).addToRequestQueue(imagerequest);
+    }
 }

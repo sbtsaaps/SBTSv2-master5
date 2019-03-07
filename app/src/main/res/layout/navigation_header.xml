@@ -9,12 +9,15 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
+
     <ImageView
         android:id="@+id/menu_photo"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/profile"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription"/>
+
+
+
 
     <TextView
         android:id="@+id/menu_name"
