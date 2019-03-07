@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -26,6 +27,9 @@ public class AttendeeHome extends Fragment {
     View view;
     SharedPreferences sharedPreferences;
     RequestOptions option;
+    Toolbar toolbar;
+
+
 
 
     @Override
@@ -42,13 +46,13 @@ public class AttendeeHome extends Fragment {
 
     }
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_attendee_home, container, false);
-
-
 
 
         imageView = (ImageView) view.findViewById(R.id.attendee_profile_image);

@@ -17,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -25,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -194,22 +196,40 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
                 StudentList studentList = new StudentList();
                 studentList.setArguments(bundle);
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.nav_frame, studentList).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_frame, studentList)
+                        .addToBackStack(null)
+                        .commit();
                 toolbar.setTitle("Student List");
                 break;
             }
             case R.id.nav_profile: {
-                getSupportFragmentManager().beginTransaction().replace(R.id.nav_frame, new AttendeeHome()).commit();
+
+                AttendeeHome attendeeHome = new AttendeeHome();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_frame, new AttendeeHome())
+                        .addToBackStack(null)
+                        .commit();
                 toolbar.setTitle("Profile");
                 break;
             }
             case R.id.nav_map: {
-                getSupportFragmentManager().beginTransaction().replace(R.id.nav_frame, new map()).commit();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_frame, new map())
+                        .addToBackStack(null)
+                        .commit();
                 toolbar.setTitle("Map");
                 break;
             }
-            case R.id.nav_change_pass: {
-                getSupportFragmentManager().beginTransaction().replace(R.id.parent_nav_frame, new changepassword()).commit();
+            case R.id.nav_change_password: {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_frame, new changepassword())
+                        .addToBackStack(null)
+                        .commit();
                 toolbar.setTitle("Change Password");
                 break;
             }
@@ -228,10 +248,12 @@ public class AttendeeNavigation extends AppCompatActivity implements NavigationV
         }
         if (getFragmentManager().getBackStackEntryCount() > 0) {
             this.finish();
+
         } else {
             getFragmentManager().popBackStack();
         }
     }
+
 
     @Override
     public void onLocationChanged(final Location location) {
